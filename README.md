@@ -1,7 +1,7 @@
 # pos-ia-eng-devops 🚀
 
 ![Python](https://img.shields.io/badge/python-3.14-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.131.7.svg?logo=fastapi)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.137.0.svg?logo=fastapi)
 ![Docker](https://img.shields.io/badge/Podman-ready-blue?logo=podman)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)
 <!-- TODO: Pesquise sobre https://shields.io/ e aprenda a usar badges reais. Eles ajudam a comunicar o status, versão e qualidade do seu projeto de forma profissional! -->

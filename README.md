@@ -20,6 +20,8 @@ Projeto de IA / Engenharia de Dados / DevOps
 - #TODO: Garage S3
 - #TODO: Compose Spec para Orquestração de Containers
 - #TODO: Registro Imagens
+- #TODO: Branch Control
+
 
 ## Pipelines
 

@@ -234,9 +234,10 @@ def load_to_postgres(
             logger.info(f"\n[{idx}/{len(parquet_files)}] {pq_file} → {table_name}")
 
             if not os.path.exists(pq_path):
-                from src.utils import _get_s3_client, S3_BUCKET_NAME
+                from src.utils import get_s3_client
+                from src.config import S3_BUCKET_NAME
 
-                s3_client = _get_s3_client()
+                s3_client = get_s3_client()
                 s3_key = f"processed/{year_month}/{pq_file}"
                 logger.info(f"  ⬇️  Arquivo não encontrado localmente. Baixando do S3: {s3_key}")
                 try:

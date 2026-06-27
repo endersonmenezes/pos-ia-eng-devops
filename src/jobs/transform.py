@@ -339,9 +339,9 @@ def process_file(db, zip_path: str, output_path: str, year_month: str) -> dict:
         return {"file_name": file_name, "skipped": True, "reason": "not_mapped"}
 
     if not os.path.exists(zip_path):
-        from src.utils import _get_s3_client, S3_BUCKET_NAME
-
-        s3_client = _get_s3_client()
+        from src.utils import get_s3_client
+        from src.config import S3_BUCKET_NAME
+        s3_client = get_s3_client()
         s3_key = f"raw/{year_month}/{file_name}"
         logger.info(f"Arquivo não encontrado localmente. Baixando do S3: {s3_key}")
         try:
@@ -476,13 +476,28 @@ def transform_data(db, year_month: str, first_only: bool = False) -> dict:
 
         result = process_file(db, zip_path, output_path, year_month)
         results.append(result)
+        
+        record = db.query(SyncControl).filter(
+            SyncControl.year_month == year_month, 
+            SyncControl.file_name == file_name
+        ).first()
 
-        if result.get("skipped"):
+        if result.get("skipped") and result.get("reason") != "already_exists":
             skipped += 1
         elif "error" in result:
             errors += 1
+            if record:
+                record.status = "error"
+                record.error_message = result.get("error")
+                db.commit()
         else:
-            total_rows += result.get("total_rows", 0)
+            if not result.get("skipped"):
+                total_rows += result.get("total_rows", 0)
+            
+            if record and record.status in ["downloaded", "error"]:
+                record.status = "transformed"
+                record.error_message = None
+                db.commit()
 
     logger.info(f"\n{'=' * 60}")
     logger.info(f"TRANSFORM {year_month} CONCLUÍDO")

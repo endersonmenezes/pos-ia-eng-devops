@@ -14,7 +14,7 @@ import os
 
 from botocore.exceptions import ClientError
 
-from src.utils import format_bytes as _format_bytes, get_s3_client as _get_s3_client
+from src.utils import format_bytes as _format_bytes, get_s3_client
 from src.config import (
     S3_BUCKET_NAME,
     DATA_RAW_DIR,
@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-# _get_s3_client importada de src.utils
+# get_s3_client importada de src.utils
 
 
 def _ensure_bucket_exists(s3_client, bucket_name: str):
@@ -83,7 +83,7 @@ def upload_raw_to_s3(year_month: str, skip_existing: bool = True) -> dict:
         logger.warning(f"Nenhum .zip em {raw_dir}.")
         return {"error": "no_zips"}
 
-    s3_client = _get_s3_client()
+    s3_client = get_s3_client()
     _ensure_bucket_exists(s3_client, S3_BUCKET_NAME)
 
     uploaded = []
@@ -153,7 +153,7 @@ def upload_parquets_to_s3(year_month: str, skip_existing: bool = True) -> dict:
         logger.warning(f"Nenhum .parquet em {processed_dir}.")
         return {"error": "no_parquets"}
 
-    s3_client = _get_s3_client()
+    s3_client = get_s3_client()
     _ensure_bucket_exists(s3_client, S3_BUCKET_NAME)
 
     uploaded = []
@@ -228,7 +228,7 @@ def verify_s3_integrity(db, year_month: str, layer: str = "raw") -> dict:
             .all()
         )
 
-    s3_client = _get_s3_client()
+    s3_client = get_s3_client()
     results = []
 
     for record in records:

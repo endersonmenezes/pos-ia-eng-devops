@@ -7,20 +7,70 @@ services:
     container_name: fastapi_cnpj_api
     ports:
       - "8000:8000"
-    environment:
-      - ENV=development
+    env_file:
+      - .env
+    volumes:
+      - .:/app
     restart: always
-    # TODO: Configurar depends_on para o db com condition: service_healthy
+    depends_on:
+      db:
+        condition: service_healthy
 
-  # TODO: Adicionar serviço 'db' (PostgreSQL)
-  # - Definir imagem oficial do Postgres
-  # - Configurar credenciais via environment
-  # - Adicionar volume local para persistência de dados
-  # - Configurar healthcheck (pg_isready)
+  db:
+    image: public.ecr.aws/docker/library/postgres:17-alpine
+    container_name: fastapi_cnpj_db
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cnpj"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # TODO: Adicionar serviço 'storage' (Garage S3 compatível ou MinIO)
-  # - Definir imagem
-  # - Configurar credenciais
-  # - Configurar porta (ex: 3900)
+  storage:
+    image: dxflrs/garage:v2.3.0
+    container_name: fastapi_cnpj_storage
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    ports:
+      - "3900:3900"   # S3 API
+      - "3902:3902"   # Admin API
+    volumes:
+      - garage-data:/var/lib/garage/data
+      - garage-meta:/var/lib/garage/meta
+      - ./config/garage.toml:/etc/garage.toml
+    env_file:
+      - .env
 
-# TODO: Declarar volumes para persistência do banco e do storage
+  metabase:
+    image: metabase/metabase:latest
+    container_name: fastapi_cnpj_metabase
+    ports:
+      - "3000:3000"
+    environment:
+      # Banco de metadados do próprio Metabase (H2 embutido — ok para dev)
+      MB_DB_TYPE: h2
+      MB_DB_FILE: /metabase-data/metabase.db
+      # Fuso horário
+      JAVA_TIMEZONE: America/Sao_Paulo
+    volumes:
+      - metabase-data:/metabase-data
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  postgres-data:
+  garage-data:
+  garage-meta:
+  metabase-data:

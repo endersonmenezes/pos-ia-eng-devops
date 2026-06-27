@@ -1,13 +1,22 @@
 fastapi==0.137.0
 uvicorn==0.49.0
 
-# TODO: Escolher e adicionar bibliotecas de manipulação de dados
-# Recomendação: pandas (para datasets menores/médios)
-# Outras opções: polars, duckdb
+# Manipulação e transformação de dados
+pandas>=2.2.0
+pyarrow>=18.0.0
 
-# TODO: Escolher e adicionar SDK de banco de dados
-# Recomendação para Postgres: psycopg2-binary ou asyncpg
-# Recomendação ORM (opcional): sqlalchemy ou sqlmodel
+# Banco de dados PostgreSQL
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
 
-# TODO: Escolher e adicionar SDK de Object Storage (S3 API compatível)
-# Recomendação: boto3 ou minio
+# Object Storage (S3 API compatível — Garage)
+boto3>=1.35.0
+
+# HTTP client para download e scraping
+requests>=2.32.0
+beautifulsoup4>=4.12.0
+
+# Linting e Testes (Geralmente em um requirements-dev.txt separado, mas mantido aqui para simplificar)
+pytest>=8.0.0
+httpx>=0.27.0
+ruff>=0.4.0

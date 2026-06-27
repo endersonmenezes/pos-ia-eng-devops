@@ -24,11 +24,15 @@ var/
 venv/
 ENV/
 
-# TODO: Ignorar arquivos de credenciais e configuração local (ex: .env)
-# .env
+# Credenciais e configuração local
+.env
 
-# TODO: Ignorar arquivos de dados locais pesados para não commitar no repositório
-# data/raw/*.zip
-# data/raw/*.csv
-# data/processed/*.parquet
-# *.sqlite
+# Dados locais pesados — NUNCA commitar no repositório
+data/raw/*.zip
+data/raw/*.csv
+data/processed/*.parquet
+*.sqlite
+
+# IDEs
+.vscode/
+.idea/

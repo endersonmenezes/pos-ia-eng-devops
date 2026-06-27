@@ -1,7 +1,6 @@
 # .containerignore
-# Funciona exatamente como um .gitignore, mas dita quais arquivos locais
-# NÃO devem ser copiados para dentro da sua imagem Docker/Podman durante o build.
-# Isso reduz o tamanho da imagem, aumenta a segurança (não copiando senhas) e melhora a velocidade do build.
+# Impede que arquivos desnecessários entrem na imagem durante o podman build.
+# Reduz tamanho da imagem, melhora velocidade de build e evita vazamento de credenciais.
 
 .git/
 .gitignore
@@ -22,7 +21,14 @@ __pycache__/
 .idea/
 .env
 
-# TODO: Ignorar as pastas de dados brutos para que o container não seja "inchado" com eles
-# data/
-# *.csv
-# *.parquet
+# Dados brutos e processados — NÃO devem entrar na imagem
+data/
+*.csv
+*.parquet
+*.zip
+*.sqlite
+
+# Documentação e ADRs (não necessários no runtime)
+docs/
+README.md
+Makefile

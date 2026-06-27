@@ -1,25 +1,43 @@
-# TODO: Implementar Multi-stage build (Builder stage vs Runtime stage) para otimização
-# TODO: Configurar usuário não-root por segurança (ex: adduser)
-# Stage 1: Final runtime stage
+# Stage 1: Builder — instala dependências em ambiente isolado
+FROM public.ecr.aws/docker/library/python:3.14-alpine AS builder
+
+WORKDIR /build
+
+COPY requirements.txt .
+
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip && \
+    /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Runtime — imagem final limpa e segura
 FROM public.ecr.aws/docker/library/python:3.14-alpine
 
-# Set environment variables for optimized python container execution
+# Criar usuário não-root para segurança
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Variáveis de ambiente para execução otimizada
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
-# Set the working directory
 WORKDIR /app
 
-# Copy source folder and requirements.txt to the container
+# Copiar venv do builder (apenas dependências instaladas, sem cache)
+COPY --from=builder /opt/venv /opt/venv
+
+# Copiar código fonte, testes e configs
 COPY src/ ./src/
-COPY requirements.txt .
+COPY tests/ ./tests/
+COPY pyproject.toml ./
 
-# Upgrade pip
-RUN pip install --upgrade pip
+# Ajustar permissões para que o appuser possa gerar caches locais (.pytest_cache, .ruff_cache)
+RUN chown -R appuser:appgroup /app
 
-# Install dependencies
-RUN pip install -r requirements.txt
+# Trocar para usuário não-root
+USER appuser
 
-# Start the FastAPI application with uvicorn
+# Expor porta da API
+EXPOSE 8000
+
+# Iniciar a aplicação FastAPI com uvicorn
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

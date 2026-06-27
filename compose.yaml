@@ -5,22 +5,84 @@ services:
       dockerfile: ContainerFile
     image: fastapi-cnpj:latest
     container_name: fastapi_cnpj_api
+
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
+
     ports:
       - "8000:8000"
+
     environment:
       - ENV=development
+
+    volumes:
+      - ./data:/app/data
+
+    depends_on:
+      db:
+        condition: service_healthy
+
     restart: always
-    # TODO: Configurar depends_on para o db com condition: service_healthy
 
-  # TODO: Adicionar serviço 'db' (PostgreSQL)
-  # - Definir imagem oficial do Postgres
-  # - Configurar credenciais via environment
-  # - Adicionar volume local para persistência de dados
-  # - Configurar healthcheck (pg_isready)
+  pipeline:
+    build:
+      context: .
+      dockerfile: ContainerFile
+    image: fastapi-cnpj:latest
+    container_name: cnpj_pipeline
 
-  # TODO: Adicionar serviço 'storage' (Garage S3 compatível ou MinIO)
-  # - Definir imagem
-  # - Configurar credenciais
-  # - Configurar porta (ex: 3900)
+    command: python src/ingest.py
 
-# TODO: Declarar volumes para persistência do banco e do storage
+    volumes:
+      - ./data:/app/data
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    restart: "no"
+
+  db:
+    image: postgres:16
+    container_name: postgres_db
+
+    environment:
+      POSTGRES_DB: cnpj
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cnpj"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: always
+
+  storage:
+    image: quay.io/minio/minio:latest
+    container_name: minio
+
+    command: server /data --console-address ":9001"
+
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin12345
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    volumes:
+      - minio_data:/data
+
+    restart: always
+
+volumes:
+  postgres_data:
+  minio_data:

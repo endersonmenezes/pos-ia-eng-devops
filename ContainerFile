@@ -1,25 +1,24 @@
-# TODO: Implementar Multi-stage build (Builder stage vs Runtime stage) para otimização
-# TODO: Configurar usuário não-root por segurança (ex: adduser)
-# Stage 1: Final runtime stage
-FROM public.ecr.aws/docker/library/python:3.14-alpine
 
-# Set environment variables for optimized python container execution
+FROM python:3.14-alpine AS builder
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install -r requirements.txt
+
+
+FROM python:3.14-alpine
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
-# Set the working directory
 WORKDIR /app
 
-# Copy source folder and requirements.txt to the container
-COPY src/ ./src/
-COPY requirements.txt .
+COPY --from=builder /opt/venv /opt/venv
+COPY src ./src
 
-# Upgrade pip
-RUN pip install --upgrade pip
-
-# Install dependencies
-RUN pip install -r requirements.txt
-
-# Start the FastAPI application with uvicorn
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python"]

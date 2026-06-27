@@ -8,14 +8,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Record application startup time for uptime calculation
 START_TIME = time.time()
 
 @app.get("/", tags=["General"])
 async def root():
-    """
-    Root endpoint returning basic API info.
-    """
     return {
         "message": "Bem-vindo à API de dados do CNPJ da Receita Federal!",
         "status": "Running",
@@ -24,9 +20,6 @@ async def root():
 
 @app.get("/health", tags=["Monitoring"])
 async def health_check():
-    """
-    Health check endpoint for container orchestrators and Podman healthcheck.
-    """
     uptime = time.time() - START_TIME
     return JSONResponse(
         status_code=200,

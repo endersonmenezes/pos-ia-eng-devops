@@ -24,11 +24,30 @@ var/
 venv/
 ENV/
 
-# TODO: Ignorar arquivos de credenciais e configuração local (ex: .env)
-# .env
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
 
-# TODO: Ignorar arquivos de dados locais pesados para não commitar no repositório
-# data/raw/*.zip
-# data/raw/*.csv
-# data/processed/*.parquet
-# *.sqlite
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Dados
+data/
+
+# Variáveis de ambiente
+.env
+
+# Arquivos do Podman
+*.pid

@@ -1,26 +1,18 @@
-.PHONY: build up down test clean
-
-# TODO: Implementar a construção da imagem
 build:
-	@echo "Construindo a imagem com Podman..."
-	# podman build -f ContainerFile -t fastapi-cnpj .
+	podman compose build
 
-# TODO: Implementar subida do ambiente usando compose
 up:
-	@echo "Subindo o ambiente..."
-	# podman-compose up -d --build
+	podman compose up
 
-# TODO: Implementar a descida do ambiente
 down:
-	@echo "Derrubando o ambiente..."
-	# podman-compose down
+	podman compose down
 
-# TODO: Implementar a execução dos testes
-test:
-	@echo "Executando testes locais..."
-	# pytest tests/
+logs:
+	podman compose logs -f
 
-# TODO: Implementar limpeza de imagens e volumes (opcional/cuidado!)
+restart:
+	podman compose down
+	podman compose up --build
+
 clean:
-	@echo "Limpando artefatos locais..."
-	# podman system prune -f
+	podman compose down -v

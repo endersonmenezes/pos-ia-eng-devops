@@ -1,3 +1,5 @@
+[![Continuous Integration](https://github.com/MatheusRantin/pos-ia-eng-devops/actions/workflows/ci.yml/badge.svg)](https://github.com/MatheusRantin/pos-ia-eng-devops/actions/workflows/ci.yml)
+
 # Receita Federal CNPJ API
 
 Projeto desenvolvido para a disciplina de DevOps aplicado à Engenharia de Dados.

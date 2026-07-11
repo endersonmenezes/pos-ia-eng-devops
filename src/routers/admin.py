@@ -525,11 +525,24 @@ async def trigger_transform_file(
             _os.remove(out_p)
         _os.makedirs(_os.path.dirname(out_p), exist_ok=True)
 
-        from src.models.database import SessionLocal
-
         bg_db = SessionLocal()
         try:
-            process_file(bg_db, zip_p, out_p, month)
+            from src.models.sync_control import SyncControl
+            result = process_file(bg_db, zip_p, out_p, month)
+            
+            record = bg_db.query(SyncControl).filter(
+                SyncControl.year_month == month,
+                SyncControl.file_name == zip_name
+            ).first()
+
+            if record:
+                if "error" in result:
+                    record.status = "error"
+                    record.error_message = result.get("error")
+                elif not result.get("skipped") or force_flag:
+                    record.status = "transformed"
+                    record.error_message = None
+                bg_db.commit()
         finally:
             bg_db.close()
 

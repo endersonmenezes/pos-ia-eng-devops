@@ -1,0 +1,7 @@
+checks for empresas:
+  - row_count > 0
+  - missing_count(cnpj_basico) = 0
+  - missing_count(razao_social) = 0
+
+checks for estabelecimentos:
+  - row_count > 0

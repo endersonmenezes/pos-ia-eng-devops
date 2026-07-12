@@ -17,7 +17,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from src.models.database import init_db
-from src.routers import empresas, admin, s3_status, ml_serving
+from src.routers import empresas, admin, s3_status, ml_serving, ml_tracking
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,7 +34,8 @@ app = FastAPI(
         "- 📊 Consulta de empresas por CNPJ ou razão social\n"
         "- 🔄 Dashboard de sincronização para controle de dados\n"
         "- 📥 Discovery e download seletivo por período\n"
-        "- 🤖 Model Serving para predição de Optantes pelo Simples\n\n"
+        "- 🤖 Model Serving para predição de Optantes pelo Simples\n"
+        "- 🧪 Gerenciamento de testes e runs com MLflow Tracking\n\n"
         "**Fonte de dados:** [Portal da Receita Federal]"
         "(https://arquivos.receitafederal.gov.br/index.php/s/YggdBLfdninEJX9)"
     ),
@@ -47,6 +48,7 @@ app.include_router(empresas.router)
 app.include_router(admin.router)
 app.include_router(s3_status.router)
 app.include_router(ml_serving.router)
+app.include_router(ml_tracking.router)
 
 # Timestamp de startup para cálculo de uptime
 START_TIME = time.time()
@@ -64,6 +66,7 @@ async def root():
         "endpoints": {
             "empresas": "/empresas",
             "admin_dashboard": "/admin/sync",
+            "ml_tracking": "/ml/tracking",
             "health": "/health",
         },
     }
